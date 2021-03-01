@@ -1,6 +1,6 @@
 {
   "name": "automate-setup-react-cra",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "description": "one line script to setup my create-react-app",
   "main": "src/index.js",
   "author": "Alvin Novian<alvinnovian883@gmail.com>",
