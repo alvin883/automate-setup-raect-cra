@@ -1,38 +1,35 @@
+const cp = require("child_process");
+const path = require("path");
+
+const { done: styleDone, process: styleProcess } = require("./logStyle");
 const prompt = require("./prompt");
-const execShell = require("exec-sh");
-const chalk = require("chalk");
+const copyTemplate = require("./copyTemplate");
+const replaceNpmCommand = require("./replaceNpmCommand");
 
 const runCreateReactApp = async () => {
   const options = await prompt();
 
-  execShell(
-    `npx create-react-app ${options.folderName}`,
-    function (err, stdout) {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log(
-          "%s Finish installing Create React App!",
-          chalk.green.bold("DONE"),
-        );
-        console.log("%s Wait there's more!", chalk.yellow.bold("PROCESSING"));
+  cp.execSync(`npx create-react-app ${options.folderName}`, {
+    stdio: "inherit",
+  });
 
-        execShell(
-          [`cd ${options.folderName}`, `npm install -D sass @craco/craco`],
-          function (err, stdout) {
-            if (err) {
-              console.error(err);
-            }
-          },
-        );
-      }
-      cd;
-    },
-  );
+  console.log("%s Finish installing Create React App!", styleDone);
+  console.log("%s Wait there's more ...", styleProcess);
 
-  //   await execShell(`npm install -D sass @craco/craco`).catch((err) => {
-  //     console.error(err);
-  //   });
+  cp.execSync(`npm install -D sass @craco/craco`, {
+    stdio: "inherit",
+    cwd: `./${options.folderName}`,
+  });
+
+  console.log("%s Finish installing Craco and SASS", styleDone);
+  console.log("%s Copying setup template ...", styleProcess);
+
+  const copySource = path.join(__dirname, "template");
+  const copyDest = path.join(process.cwd(), options.folderName);
+  copyTemplate(copySource, copyDest, () => {
+    console.log("%s Template copied successfully", styleDone);
+    replaceNpmCommand(options.folderName);
+  });
 };
 
 export const run = () => runCreateReactApp();
